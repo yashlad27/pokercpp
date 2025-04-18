@@ -12,6 +12,30 @@ static bool rankCompare(const Card& a, const Card& b) {
     return rankToInt(a.rank) > rankToInt(b.rank);
 }
 
+bool isStraight(const std::vector<int>& ranks, int& highCard) {
+    std::vector<int> sorted = ranks;
+    std::sort(sorted.begin(), sorted.end());
+    sorted.erase(std::unique(sorted.begin(), sorted.end()), sorted.end());
+
+    // Ace-low straight (A = 14 or 1)
+    if (std::find(sorted.begin(), sorted.end(), 14) != sorted.end())
+        sorted.insert(sorted.begin(), 1);  // treat Ace as 1
+
+    int count = 1;
+    for (size_t i = 1; i < sorted.size(); ++i) {
+        if (sorted[i] == sorted[i-1] + 1) {
+            count++;
+            if (count >= 5) {
+                highCard = sorted[i];
+                return true;
+            }
+        } else {
+            count = 1;
+        }
+    }
+    return false;
+}
+
 // Operator > to compare two hand values
 bool HandValue::operator>(const HandValue& other) const {
     if (rank != other.rank)
@@ -63,6 +87,44 @@ HandValue evaluateHand(const std::vector<Card>& cards) {
     }
 
     // Full House (trip + pair) — coming soon
+
+    // Count suits
+std::map<Suit, std::vector<int>> suitGroups;
+for (const Card& c : cards) {
+    suitGroups[c.suit].push_back(rankToInt(c.rank));
+}
+
+// Check for flush
+Suit flushSuit;
+bool hasFlush = false;
+std::vector<int> flushRanks;
+
+for (const auto& entry : suitGroups) {
+    if (entry.second.size() >= 5) {
+        hasFlush = true;
+        flushSuit = entry.first;
+        flushRanks = entry.second;
+        std::sort(flushRanks.rbegin(), flushRanks.rend());
+        flushRanks.resize(5);
+        break;
+    }
+}
+
+if (hasFlush) {
+    return HandValue{ HandRank::Flush, flushRanks };
+}
+
+// Build rank list
+std::vector<int> allRanks;
+for (const Card& c : cards) {
+    allRanks.push_back(rankToInt(c.rank));
+}
+std::sort(allRanks.rbegin(), allRanks.rend());
+
+int straightHigh = 0;
+if (isStraight(allRanks, straightHigh)) {
+    return HandValue{ HandRank::Straight, {straightHigh} };
+}
 
     // Three of a Kind
     if (!trips.empty()) {

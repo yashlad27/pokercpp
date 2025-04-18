@@ -3,6 +3,31 @@
 #include "deck.h"
 #include "player.h"
 
+#include "hand_evaluator.h"
+
+// Helper to convert enum to readable text
+std::string handRankToString(HandRank rank) {
+    switch(rank) {
+        case HandRank::HighCard: return "High Card";
+        case HandRank::OnePair: return "One Pair";
+        case HandRank::TwoPair: return "Two Pair";
+        case HandRank::ThreeOfAKind: return "Three of a Kind";
+        case HandRank::Straight: return "Straight";
+        case HandRank::Flush: return "Flush";
+        case HandRank::FullHouse: return "Full House";
+        case HandRank::FourOfAKind: return "Four of a Kind";
+        case HandRank::StraightFlush: return "Straight Flush";
+        case HandRank::RoyalFlush: return "Royal Flush";
+        default: return "Unknown";
+    }
+}
+
+std::vector<Card> getCombinedHand(const Player& player, const std::vector<Card>& community) {
+    std::vector<Card> fullHand = player.getHand();
+    fullHand.insert(fullHand.end(), community.begin(), community.end());
+    return fullHand;
+}
+
 void waitForEnter() {
     std::cout << "\nPress ENTER to continue...";
     std::cin.ignore();
@@ -70,6 +95,8 @@ int main() {
 
     if (action == "fold") {
         std::cout << "You folded. Bot wins the round.\n";
+        std::cout << "Bot's hand: ";
+        bot.showHand(true);
         return 0;
     } else if (action == "bet") {
         human.bet(100);
@@ -80,14 +107,23 @@ int main() {
     }
 
     // === Showdown ===
-    std::cout << "\n=== Showdown ===\n";
-    std::cout << "Your hand: ";
-    human.showHand(true);
+    auto humanFullHand = getCombinedHand(human, community);
+    auto botFullHand = getCombinedHand(bot, community);
 
-    std::cout << "Bot's hand: ";
-    bot.showHand(true);
+    HandValue hv1 = evaluateHand(humanFullHand);
+    HandValue hv2 = evaluateHand(botFullHand);
 
-    std::cout << "\n(Winner evaluation logic coming soon...)\n";
+    // Show hand types
+    std::cout << "\nYour best hand: " << handRankToString(hv1.rank) << std::endl;
+    std::cout << "Bot's best hand: " << handRankToString(hv2.rank) << std::endl;
 
-    return 0;
+    // Decide winner
+    std::cout << "\nResult: ";
+    if (hv1 > hv2) {
+        std::cout << "You win!\n";
+    } else if (hv2 > hv1) {
+        std::cout << "Bot wins!\n";
+    } else {
+        std::cout << "It's a tie!\n";
+    }
 }

@@ -65,3 +65,7 @@ void Player::showHand(bool showCards) const {
 	}
 	std::cout<<std::endl;
 }
+
+std::vector<Card> Player::getHand() const {
+    return hand;
+}
