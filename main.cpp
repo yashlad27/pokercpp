@@ -101,9 +101,13 @@ int main() {
     } else if (action == "bet") {
         human.bet(100);
         std::cout << "Bot calls your bet.\n";
+        std::cout << "Bot's hand: ";
+        bot.showHand(true); 
         bot.bet(100);
     } else {
         std::cout << "You checked. Bot checks.\n";
+        std::cout << "Bot's hand: ";
+        bot.showHand(true); 
     }
 
     // === Showdown ===

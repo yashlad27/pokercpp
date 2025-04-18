@@ -5,8 +5,8 @@ Card::Card(Suit s, Rank r) : suit(s), rank(r) {}
 
 static std::string suitToSymbol(Suit suit) {
 	switch(suit) {
-	case Suit::Hearts: return "♥ ";
-	case Suit::Diamonds: return "♦ ";
+	case Suit::Hearts: return "❤️ ";
+	case Suit::Diamonds: return "♦️ ";
 	case Suit::Clubs: return "♣️ ";
 	case Suit::Spades: return "♠️ ";
 	default: return "?";
