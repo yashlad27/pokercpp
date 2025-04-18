@@ -50,6 +50,7 @@ int main() {
     displayChipCounts(human, bot);
 
     // Pre-flop: Deal 2 hole cards
+    std::cout << "\n🃏 Dealing cards...\n";
     human.recieveCard(deck.dealCard());
     human.recieveCard(deck.dealCard());
 
@@ -65,7 +66,7 @@ int main() {
     waitForEnter();
 
     // === Flop ===
-    std::cout << "\n=== Flop ===\n";
+    std::cout << "\n=== 🔥 Flop ===\n";
     std::vector<Card> community;
     for (int i = 0; i < 3; ++i) {
         community.push_back(deck.dealCard());
@@ -80,7 +81,7 @@ int main() {
     waitForEnter();
 
     // === Turn ===
-    std::cout << "\n=== Turn ===\n";
+    std::cout << "\n=== 💥 Turn ===\n";
     community.push_back(deck.dealCard());
     std::cout << "Community Cards: ";
     for (const Card& c : community) std::cout << c.toString() << " ";
@@ -89,7 +90,7 @@ int main() {
     waitForEnter();
 
     // === River ===
-    std::cout << "\n=== River ===\n";
+    std::cout << "\n=== 💣 River ===\n";
     community.push_back(deck.dealCard());
     std::cout << "Community Cards: ";
     for (const Card& c : community) std::cout << c.toString() << " ";
