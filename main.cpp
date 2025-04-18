@@ -6,6 +6,11 @@
 #include "hand_evaluator.h"
 #include "advanced_hand_evaluator.h"
 
+void displayChipCounts(const Player& p1, const Player& p2) {
+    std::cout << p1.getName() << ": " << p1.getChipCount() << " chips\t";
+    std::cout << p2.getName() << ": " << p2.getChipCount() << " chips\n";
+}
+
 // Helper to convert enum to readable text
 std::string handRankToString(HandRank rank) {
     switch(rank) {
@@ -40,6 +45,9 @@ int main() {
     Deck deck;
     Player human("You", 1000);
     Player bot("Bot", 1000);
+
+    std::cout << "\n--- Current Chip Counts ---\n";
+    displayChipCounts(human, bot);
 
     // Pre-flop: Deal 2 hole cards
     human.recieveCard(deck.dealCard());
@@ -101,7 +109,19 @@ int main() {
         return 0;
     } else if (action == "bet") {
         human.bet(100);
-        std::cout << "Bot calls your bet.\n";
+        // std::cout << "Bot calls your bet.\n";
+
+        std::cout << "Bot is thinking...\n";
+
+        HandValue botEval = AdvancedHandEvaluator::evaluate(getCombinedHand(bot, community));
+        if (static_cast<int>(botEval.rank) >= static_cast<int>(HandRank::OnePair)) {
+            std::cout << "Bot calls your bet.\n";
+            bot.bet(100);
+        } else {
+            std::cout << "Bot folds.\n";
+        return 0;
+        }
+
         std::cout << "Bot's hand: ";
         bot.showHand(true); 
         bot.bet(100);
@@ -124,11 +144,22 @@ int main() {
 
     // Decide winner
     std::cout << "\nResult: ";
+    const int pot = 200;
+
     if (hv1 > hv2) {
         std::cout << "You win!\n";
+        human.bet(-pot);
     } else if (hv2 > hv1) {
         std::cout << "Bot wins!\n";
+        bot.bet(-pot);
     } else {
         std::cout << "It's a tie!\n";
+        human.bet(-100);
+        bot.bet(-100);
     }
+
+    std::cout << "\n--- Updated Chip Counts ---\n";
+    displayChipCounts(human, bot);
+
+    return 0;
 }
