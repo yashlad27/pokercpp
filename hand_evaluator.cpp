@@ -97,4 +97,4 @@ HandValue evaluateHand(const std::vector<Card>& cards) {
         topCards.push_back(singles[i]);
     }
     return HandValue{ HandRank::HighCard, topCards };
-}}
+}
