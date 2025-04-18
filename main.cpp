@@ -4,6 +4,7 @@
 #include "player.h"
 
 #include "hand_evaluator.h"
+#include "advanced_hand_evaluator.h"
 
 // Helper to convert enum to readable text
 std::string handRankToString(HandRank rank) {
@@ -114,8 +115,8 @@ int main() {
     auto humanFullHand = getCombinedHand(human, community);
     auto botFullHand = getCombinedHand(bot, community);
 
-    HandValue hv1 = evaluateHand(humanFullHand);
-    HandValue hv2 = evaluateHand(botFullHand);
+    HandValue hv1 = AdvancedHandEvaluator::evaluate(humanFullHand);
+    HandValue hv2 = AdvancedHandEvaluator::evaluate(botFullHand);
 
     // Show hand types
     std::cout << "\nYour best hand: " << handRankToString(hv1.rank) << std::endl;
