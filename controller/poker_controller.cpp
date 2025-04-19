@@ -3,10 +3,13 @@
 #include "../model/player.h"
 #include "../model/advanced_hand_evaluator.h"
 #include "../view/cli_view.h"
+#include "../animation/spinner.h"
 
 #include <iostream>
 #include <vector>
 #include <string>
+#include <thread>
+#include <chrono>
 
 std::vector<Card> getCombinedHand(const Player& player, const std::vector<Card>& community) {
     std::vector<Card> fullHand = player.getHand();
@@ -63,6 +66,7 @@ void PokerController::runGame() {
 }
 
 void PokerController::playRound(Player& human, Player& bot) {
+    
     Deck deck;
     human.clearHand();
     bot.clearHand();
@@ -112,9 +116,19 @@ void PokerController::playRound(Player& human, Player& bot) {
 
     if (action == "bet") {
         human.bet(100);
-        std::cout << "Bot is thinking...\n";
+        std::atomic<bool> done(false);
+        std::thread spinner(Spinner::show, std::ref(done));
 
+        // Simulate bot thinking delay
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+
+        // Bot evaluates hand
         auto botEval = AdvancedHandEvaluator::evaluate(getCombinedHand(bot, community));
+
+        // Stop spinner
+        done = true;
+        spinner.join();
+
         if (botEval.rank >= HandRank::OnePair) {
             std::cout << "Bot calls your bet.\n";
             bot.bet(100);

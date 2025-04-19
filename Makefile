@@ -4,7 +4,8 @@ SRC = main.cpp \
       controller/poker_controller.cpp \
       view/cli_view.cpp \
       model/card.cpp model/deck.cpp model/player.cpp \
-      model/hand_evaluator.cpp model/advanced_hand_evaluator.cpp
+      model/hand_evaluator.cpp model/advanced_hand_evaluator.cpp \
+      animation/spinner.cpp
 TARGET = poker
 
 $(TARGET): $(SRC)
