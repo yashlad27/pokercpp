@@ -59,7 +59,7 @@ void Player::showHand(bool showCards) const {
 			std::cout << card.toString() << " ";
 		}
 	} else {
-		for (int i=0; i<hand.size(); ++i) {
+		for (size_t i=0; i<hand.size(); ++i) {
 			std::cout<<"[hidden]";
 		}
 	}
