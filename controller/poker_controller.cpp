@@ -12,29 +12,44 @@
 #include <thread>
 #include <chrono>
 
-std::vector<Card> getCombinedHand(const Player& player, const std::vector<Card>& community) {
+std::vector<Card> getCombinedHand(const Player &player, const std::vector<Card> &community)
+{
     std::vector<Card> fullHand = player.getHand();
     fullHand.insert(fullHand.end(), community.begin(), community.end());
     return fullHand;
 }
 
-std::string handRankToString(HandRank rank) {
-    switch(rank) {
-        case HandRank::HighCard: return "High Card";
-        case HandRank::OnePair: return "One Pair";
-        case HandRank::TwoPair: return "Two Pair";
-        case HandRank::ThreeOfAKind: return "Three of a Kind";
-        case HandRank::Straight: return "Straight";
-        case HandRank::Flush: return "Flush";
-        case HandRank::FullHouse: return "Full House";
-        case HandRank::FourOfAKind: return "Four of a Kind";
-        case HandRank::StraightFlush: return "Straight Flush";
-        case HandRank::RoyalFlush: return "Royal Flush";
-        default: return "Unknown";
+std::string handRankToString(HandRank rank)
+{
+    switch (rank)
+    {
+    case HandRank::HighCard:
+        return "High Card";
+    case HandRank::OnePair:
+        return "One Pair";
+    case HandRank::TwoPair:
+        return "Two Pair";
+    case HandRank::ThreeOfAKind:
+        return "Three of a Kind";
+    case HandRank::Straight:
+        return "Straight";
+    case HandRank::Flush:
+        return "Flush";
+    case HandRank::FullHouse:
+        return "Full House";
+    case HandRank::FourOfAKind:
+        return "Four of a Kind";
+    case HandRank::StraightFlush:
+        return "Straight Flush";
+    case HandRank::RoyalFlush:
+        return "Royal Flush";
+    default:
+        return "Unknown";
     }
 }
 
-void PokerController::runGame() {
+void PokerController::runGame()
+{
     CLIView::showWelcome();
 
     std::string input;
@@ -42,13 +57,16 @@ void PokerController::runGame() {
     std::cin >> input;
 
     BotDifficulty botDiff = BotDifficulty::Medium;
-    if (input == "easy") botDiff = BotDifficulty::Easy;
-    else if (input == "hard") botDiff = BotDifficulty::Hard;
+    if (input == "easy")
+        botDiff = BotDifficulty::Easy;
+    else if (input == "hard")
+        botDiff = BotDifficulty::Hard;
 
     Player human("You", 1000);
     BotPlayer bot("Bot", 1000, botDiff);
 
-    while (human.getChipCount() > 0 && bot.getChipCount() > 0) {
+    while (human.getChipCount() > 0 && bot.getChipCount() > 0)
+    {
         CLIView::showDivider();
         CLIView::showChipCounts(human, bot);
         CLIView::showDivider();
@@ -59,21 +77,26 @@ void PokerController::runGame() {
         std::cout << "\nDo you want to play another round? (yes/no): ";
         std::cin >> choice;
 
-        if (choice != "yes" && choice != "y") {
+        if (choice != "yes" && choice != "y")
+        {
             std::cout << "Thanks for playing! 🎉\n";
             break;
         }
     }
 
     std::cout << "\n🏁 Game Over!\n";
-    if (human.getChipCount() <= 0) {
+    if (human.getChipCount() <= 0)
+    {
         std::cout << "😞 You ran out of chips. Bot wins the game!\n";
-    } else if (bot.getChipCount() <= 0) {
+    }
+    else if (bot.getChipCount() <= 0)
+    {
         std::cout << "🎉 Bot is broke! You win the game!\n";
     }
 }
 
-void PokerController::playRound(Player& human, Player& bot) {
+void PokerController::playRound(Player &human, Player &bot)
+{
     Deck deck;
     human.clearHand();
     bot.clearHand();
@@ -108,7 +131,8 @@ void PokerController::playRound(Player& human, Player& bot) {
     std::string action;
     std::cin >> action;
 
-    if (action == "fold") {
+    if (action == "fold")
+    {
         std::cout << "You folded. Bot wins the round.\n";
         std::cout << "Bot's hand: ";
         bot.showHand(true);
@@ -116,7 +140,8 @@ void PokerController::playRound(Player& human, Player& bot) {
         return;
     }
 
-    if (action == "bet") {
+    if (action == "bet")
+    {
         human.bet(100);
 
         std::atomic<bool> done(false);
@@ -125,21 +150,26 @@ void PokerController::playRound(Player& human, Player& bot) {
         std::this_thread::sleep_for(std::chrono::seconds(2));
 
         auto botHand = getCombinedHand(bot, community);
-        bool botCalls = static_cast<BotPlayer&>(bot).shouldCallBet(botHand);
+        bool botCalls = static_cast<BotPlayer &>(bot).shouldCallBet(botHand);
 
         done = true;
         spinner.join();
 
-        if (botCalls) {
+        if (botCalls)
+        {
             std::cout << "Bot calls your bet.\n";
             bot.bet(100);
-        } else {
+        }
+        else
+        {
             std::cout << "Bot folds.\n";
             bot.showHand(true);
             human.bet(-200);
             return;
         }
-    } else {
+    }
+    else
+    {
         std::cout << "You checked. Bot checks.\n";
         bot.showHand(true);
     }
@@ -147,7 +177,7 @@ void PokerController::playRound(Player& human, Player& bot) {
     CLIView::showResult(human, bot);
 
     auto humanFull = getCombinedHand(human, community);
-    auto botFull   = getCombinedHand(bot, community);
+    auto botFull = getCombinedHand(bot, community);
 
     HandValue hv1 = AdvancedHandEvaluator::evaluate(humanFull);
     HandValue hv2 = AdvancedHandEvaluator::evaluate(botFull);
@@ -158,13 +188,18 @@ void PokerController::playRound(Player& human, Player& bot) {
     const int pot = 200;
 
     std::cout << "\nResult: ";
-    if (hv1 > hv2) {
+    if (hv1 > hv2)
+    {
         std::cout << "You win!\n";
         human.bet(-pot);
-    } else if (hv2 > hv1) {
+    }
+    else if (hv2 > hv1)
+    {
         std::cout << "Bot wins!\n";
         bot.bet(-pot);
-    } else {
+    }
+    else
+    {
         std::cout << "It's a tie!\n";
         human.bet(-100);
         bot.bet(-100);

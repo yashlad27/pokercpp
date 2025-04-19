@@ -4,22 +4,36 @@
 #include <string>
 
 // enum for suit
-enum class Suit {
-	Hearts, 
+enum class Suit
+{
+	Hearts,
 	Diamonds,
 	Clubs,
 	Spades
 };
 
 // Enum for Rank
-enum class Rank {
-	Two = 2, Three, Four, Five, Six, Seven, 
-	Eight, Nine, Ten, Jack, Queen, King, Ace
+enum class Rank
+{
+	Two = 2,
+	Three,
+	Four,
+	Five,
+	Six,
+	Seven,
+	Eight,
+	Nine,
+	Ten,
+	Jack,
+	Queen,
+	King,
+	Ace
 };
 
 // Card class
-class Card {
-public: 
+class Card
+{
+public:
 	Suit suit;
 	Rank rank;
 
@@ -27,4 +41,4 @@ public:
 	std::string toString() const;
 };
 
-#endif 
+#endif

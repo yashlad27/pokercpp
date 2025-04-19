@@ -5,9 +5,10 @@
 #include "hand_evaluator.h"
 #include <vector>
 
-class AdvancedHandEvaluator {
-    public:
-        static HandValue evaluate(const std::vector<Card>& cards);
+class AdvancedHandEvaluator
+{
+public:
+    static HandValue evaluate(const std::vector<Card> &cards);
 };
 
 #endif

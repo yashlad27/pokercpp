@@ -5,7 +5,8 @@
 #include <vector>
 
 // enum for hand strength
-enum class HandRank {
+enum class HandRank
+{
 	HighCard = 0,
 	OnePair,
 	TwoPair,
@@ -19,15 +20,16 @@ enum class HandRank {
 };
 
 // structure to store the evaluated hand value
-struct HandValue {
+struct HandValue
+{
 	HandRank rank;
-	std::vector<int> kickers; 	// type of hand
+	std::vector<int> kickers; // type of hand
 
-	bool operator > (const HandValue& other) const;
-	bool operator == (const HandValue& other) const;
+	bool operator>(const HandValue &other) const;
+	bool operator==(const HandValue &other) const;
 };
 
 // main hand evaluation function
-HandValue evaluateHand(const std::vector<Card>& cards);
+HandValue evaluateHand(const std::vector<Card> &cards);
 
-#endif 
+#endif

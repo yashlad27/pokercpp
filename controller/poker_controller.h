@@ -3,11 +3,13 @@
 
 #include "../model/player.h"
 
-class PokerController {
+class PokerController
+{
 public:
     void runGame();
-    private:
-        void playRound(Player& human, Player& bot);
+
+private:
+    void playRound(Player &human, Player &bot);
 };
 
 #endif // Poker_CONTROLLER_H

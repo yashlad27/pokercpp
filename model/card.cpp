@@ -3,36 +3,47 @@
 
 Card::Card(Suit s, Rank r) : suit(s), rank(r) {}
 
-static std::string suitToSymbol(Suit suit) {
-	switch(suit) {
-	case Suit::Hearts: return "❤️ ";
-	case Suit::Diamonds: return "♦️ ";
-	case Suit::Clubs: return "♣️ ";
-	case Suit::Spades: return "♠️ ";
-	default: return "?";
-	}
-}
-
-static std::string rankToString(Rank rank) {
-	int r = static_cast<int>(rank);
-	if (r>=2 && r<=10) {
-		return std::to_string(r);
-	}
-	switch (rank) {
-	case Rank::Jack: 
-		return "J";
-	case Rank::Queen:
-		return "Q";
-	case Rank::King: 
-		return "K";
-	case Rank::Ace:
-		return "A";
-	default: 
+static std::string suitToSymbol(Suit suit)
+{
+	switch (suit)
+	{
+	case Suit::Hearts:
+		return "❤️ ";
+	case Suit::Diamonds:
+		return "♦️ ";
+	case Suit::Clubs:
+		return "♣️ ";
+	case Suit::Spades:
+		return "♠️ ";
+	default:
 		return "?";
 	}
 }
 
-std::string Card::toString() const {
+static std::string rankToString(Rank rank)
+{
+	int r = static_cast<int>(rank);
+	if (r >= 2 && r <= 10)
+	{
+		return std::to_string(r);
+	}
+	switch (rank)
+	{
+	case Rank::Jack:
+		return "J";
+	case Rank::Queen:
+		return "Q";
+	case Rank::King:
+		return "K";
+	case Rank::Ace:
+		return "A";
+	default:
+		return "?";
+	}
+}
+
+std::string Card::toString() const
+{
 	return rankToString(rank) + suitToSymbol(suit);
 }
 

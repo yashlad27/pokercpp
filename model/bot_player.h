@@ -7,22 +7,24 @@
 #include <vector>
 #include <string>
 
-enum class BotDifficulty {
-    Easy, 
+enum class BotDifficulty
+{
+    Easy,
     Medium,
     Hard
 };
 
-class BotPlayer : public Player {
-    private:
-        BotDifficulty difficulty;
-    
-    public:
-        BotPlayer(const std::string& name, int chips, BotDifficulty diff);
+class BotPlayer : public Player
+{
+private:
+    BotDifficulty difficulty;
 
-        BotDifficulty getDifficulty() const;
+public:
+    BotPlayer(const std::string &name, int chips, BotDifficulty diff);
 
-        bool shouldCallBet(const std::vector<Card>& fullHand);
+    BotDifficulty getDifficulty() const;
+
+    bool shouldCallBet(const std::vector<Card> &fullHand);
 };
 
 #endif

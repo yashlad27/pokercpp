@@ -12,8 +12,9 @@
  * 3. A chip count (how many chips/ money they have)
  * 4. A flag for whether they have folded
  * 5. Methods to recieve cards, bet, fold etc.
-**/
-class Player {
+ **/
+class Player
+{
 private:
 	std::string name;
 	std::vector<Card> hand;
@@ -21,21 +22,21 @@ private:
 	bool folded;
 
 public:
-	Player(const std::string& name, int startingChips);
+	Player(const std::string &name, int startingChips);
 
-	void recieveCard(const Card& card);		// Add a card to the hand
-	void clearHand();						// Reset hand (for new round)
+	void recieveCard(const Card &card); // Add a card to the hand
+	void clearHand();					// Reset hand (for new round)
 
-	void bet(int amount);			// deduct chips
-	void fold();					// set folded=true
-	void resetStatus();				// unfold for next round
+	void bet(int amount); // deduct chips
+	void fold();		  // set folded=true
+	void resetStatus();	  // unfold for next round
 
 	bool isFolded() const;
 	int getChipCount() const;
 	std::string getName() const;
 	std::vector<Card> getHand() const;
 
-	void showHand(bool showCards=true) const; 	// Print cards (face down if false)
+	void showHand(bool showCards = true) const; // Print cards (face down if false)
 };
 
 #endif
@@ -43,8 +44,8 @@ public:
 /**
  * hand -> Stores the player's 2 private (hole) cards
  * chips -> represents their current stack for betting
- * folded -> tracks whether player is out of round 
+ * folded -> tracks whether player is out of round
  * recieveCard() -> called twice to deal the hole cards
  * bet() -> removes chips when the player bets
  * showHand() -> used in showdown or debug mode
- **/ 
+ **/
