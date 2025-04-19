@@ -11,14 +11,18 @@ enum class BotDifficulty
 {
     Easy,
     Medium,
-    Hard
+    Hard,
+    HardPlus
 };
 
 class BotPlayer : public Player
 {
 private:
     BotDifficulty difficulty;
-
+    bool shouldCallEasy() const;
+    bool shouldCallMedium(const HandValue& eval) const;
+    bool shouldCallHard(const HandValue& eval) const;
+    bool shouldCallHardPlus(const std::vector<Card>& fullHand);
 public:
     BotPlayer(const std::string &name, int chips, BotDifficulty diff);
 
