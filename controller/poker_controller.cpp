@@ -30,16 +30,42 @@ std::string handRankToString(HandRank rank) {
     }
 }
 
-void GameController::runGame() {
+void PokerController::runGame() {
     CLIView::showWelcome();
 
-    Deck deck;
     Player human("You", 1000);
     Player bot("Bot", 1000);
 
-    CLIView::showDivider();
-    CLIView::showChipCounts(human, bot);
-    CLIView::showDivider();
+    while (human.getChipCount() > 0 && bot.getChipCount() > 0) {
+        CLIView::showDivider();
+        CLIView::showChipCounts(human, bot);
+        CLIView::showDivider();
+
+        playRound(human, bot);
+
+        // Prompt to continue
+        std::string choice;
+        std::cout << "\nDo you want to play another round? (yes/no): ";
+        std::cin >> choice;
+
+        if (choice != "yes" && choice != "y") {
+            std::cout << "Thanks for playing! 🎉\n";
+            break;
+        }
+    }
+
+    std::cout << "\n🏁 Game Over!\n";
+    if (human.getChipCount() <= 0) {
+        std::cout << "😞 You ran out of chips. Bot wins the game!\n";
+    } else if (bot.getChipCount() <= 0) {
+        std::cout << "🎉 Bot is broke! You win the game!\n";
+    }
+}
+
+void PokerController::playRound(Player& human, Player& bot) {
+    Deck deck;
+    human.clearHand();
+    bot.clearHand();
 
     // Deal hole cards
     human.recieveCard(deck.dealCard());
@@ -71,7 +97,7 @@ void GameController::runGame() {
     CLIView::showCommunityCards(community, "River");
     CLIView::waitForEnter();
 
-    // === Player Action ===
+    // Player action
     std::cout << "\nWhat do you want to do? (check / bet / fold): ";
     std::string action;
     std::cin >> action;
@@ -80,6 +106,7 @@ void GameController::runGame() {
         std::cout << "You folded. Bot wins the round.\n";
         std::cout << "Bot's hand: ";
         bot.showHand(true);
+        bot.bet(-200);
         return;
     }
 
@@ -95,6 +122,7 @@ void GameController::runGame() {
             std::cout << "Bot folds.\n";
             std::cout << "Bot's hand: ";
             bot.showHand(true);
+            human.bet(-200);
             return;
         }
     } else {
@@ -103,7 +131,7 @@ void GameController::runGame() {
         bot.showHand(true);
     }
 
-    // === Showdown ===
+    // Showdown
     CLIView::showResult(human, bot);
 
     auto humanFull = getCombinedHand(human, community);
@@ -129,8 +157,4 @@ void GameController::runGame() {
         human.bet(-100);
         bot.bet(-100);
     }
-
-    CLIView::showDivider();
-    CLIView::showChipCounts(human, bot);
-    CLIView::showDivider();
 }

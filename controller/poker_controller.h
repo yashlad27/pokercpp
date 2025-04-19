@@ -1,9 +1,13 @@
-#ifndef GAME_CONTROLLER_H
-#define GAME_CONTROLLER_H
+#ifndef POKER_CONTROLLER_H
+#define POKER_CONTROLLER_H
 
-class GameController {
+#include "../model/player.h"
+
+class PokerController {
 public:
     void runGame();
+    private:
+        void playRound(Player& human, Player& bot);
 };
 
-#endif // GAME_CONTROLLER_H
+#endif // Poker_CONTROLLER_H

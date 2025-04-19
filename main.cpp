@@ -1,7 +1,7 @@
 #include "controller/poker_controller.h"
 
 int main() {
-    GameController game;
+    PokerController game;
     game.runGame();
     return 0;
 }
