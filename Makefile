@@ -5,6 +5,7 @@ SRC = main.cpp \
       view/cli_view.cpp \
       model/card.cpp model/deck.cpp model/player.cpp \
       model/hand_evaluator.cpp model/advanced_hand_evaluator.cpp \
+      model/bot_player.cpp \
       animation/spinner.cpp
 TARGET = poker
 

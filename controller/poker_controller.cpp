@@ -4,6 +4,7 @@
 #include "../model/advanced_hand_evaluator.h"
 #include "../view/cli_view.h"
 #include "../animation/spinner.h"
+#include "../model/bot_player.h"
 
 #include <iostream>
 #include <vector>
@@ -36,8 +37,16 @@ std::string handRankToString(HandRank rank) {
 void PokerController::runGame() {
     CLIView::showWelcome();
 
+    std::string input;
+    std::cout << "Choose bot difficulty (easy / medium / hard): ";
+    std::cin >> input;
+
+    BotDifficulty botDiff = BotDifficulty::Medium;
+    if (input == "easy") botDiff = BotDifficulty::Easy;
+    else if (input == "hard") botDiff = BotDifficulty::Hard;
+
     Player human("You", 1000);
-    Player bot("Bot", 1000);
+    BotPlayer bot("Bot", 1000, botDiff);
 
     while (human.getChipCount() > 0 && bot.getChipCount() > 0) {
         CLIView::showDivider();
@@ -46,7 +55,6 @@ void PokerController::runGame() {
 
         playRound(human, bot);
 
-        // Prompt to continue
         std::string choice;
         std::cout << "\nDo you want to play another round? (yes/no): ";
         std::cin >> choice;
@@ -66,12 +74,10 @@ void PokerController::runGame() {
 }
 
 void PokerController::playRound(Player& human, Player& bot) {
-    
     Deck deck;
     human.clearHand();
     bot.clearHand();
 
-    // Deal hole cards
     human.recieveCard(deck.dealCard());
     human.recieveCard(deck.dealCard());
     bot.recieveCard(deck.dealCard());
@@ -84,24 +90,20 @@ void PokerController::playRound(Player& human, Player& bot) {
 
     CLIView::waitForEnter();
 
-    // Flop
     std::vector<Card> community;
     for (int i = 0; i < 3; ++i)
         community.push_back(deck.dealCard());
     CLIView::showCommunityCards(community, "Flop");
     CLIView::waitForEnter();
 
-    // Turn
     community.push_back(deck.dealCard());
     CLIView::showCommunityCards(community, "Turn");
     CLIView::waitForEnter();
 
-    // River
     community.push_back(deck.dealCard());
     CLIView::showCommunityCards(community, "River");
     CLIView::waitForEnter();
 
-    // Player action
     std::cout << "\nWhat do you want to do? (check / bet / fold): ";
     std::string action;
     std::cin >> action;
@@ -116,36 +118,32 @@ void PokerController::playRound(Player& human, Player& bot) {
 
     if (action == "bet") {
         human.bet(100);
+
         std::atomic<bool> done(false);
         std::thread spinner(Spinner::show, std::ref(done));
 
-        // Simulate bot thinking delay
         std::this_thread::sleep_for(std::chrono::seconds(2));
 
-        // Bot evaluates hand
-        auto botEval = AdvancedHandEvaluator::evaluate(getCombinedHand(bot, community));
+        auto botHand = getCombinedHand(bot, community);
+        bool botCalls = static_cast<BotPlayer&>(bot).shouldCallBet(botHand);
 
-        // Stop spinner
         done = true;
         spinner.join();
 
-        if (botEval.rank >= HandRank::OnePair) {
+        if (botCalls) {
             std::cout << "Bot calls your bet.\n";
             bot.bet(100);
         } else {
             std::cout << "Bot folds.\n";
-            std::cout << "Bot's hand: ";
             bot.showHand(true);
             human.bet(-200);
             return;
         }
     } else {
         std::cout << "You checked. Bot checks.\n";
-        std::cout << "Bot's hand: ";
         bot.showHand(true);
     }
 
-    // Showdown
     CLIView::showResult(human, bot);
 
     auto humanFull = getCombinedHand(human, community);
