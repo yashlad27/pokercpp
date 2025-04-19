@@ -1,6 +1,10 @@
 CXX = clang++
 CXXFLAGS = -std=c++17 -Wall -Wextra
-SRC = main.cpp card.cpp deck.cpp player.cpp hand_evaluator.cpp advanced_hand_evaluator.cpp
+SRC = main.cpp \
+      controller/game_controller.cpp \
+      view/cli_view.cpp \
+      model/card.cpp model/deck.cpp model/player.cpp \
+      model/hand_evaluator.cpp model/advanced_hand_evaluator.cpp
 TARGET = poker
 
 $(TARGET): $(SRC)
