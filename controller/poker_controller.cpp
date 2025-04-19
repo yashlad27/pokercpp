@@ -53,7 +53,7 @@ void PokerController::runGame()
     CLIView::showWelcome();
 
     std::string input;
-    std::cout << "Choose bot difficulty (easy / medium / hard): ";
+    std::cout << "Choose bot difficulty (easy / medium / hard / hardplus): ";
     std::cin >> input;
 
     BotDifficulty botDiff = BotDifficulty::Medium;
@@ -61,6 +61,8 @@ void PokerController::runGame()
         botDiff = BotDifficulty::Easy;
     else if (input == "hard")
         botDiff = BotDifficulty::Hard;
+    else if (input == "hardplus")
+        botDiff = BotDifficulty::HardPlus;
 
     Player human("You", 1000);
     BotPlayer bot("Bot", 1000, botDiff);
