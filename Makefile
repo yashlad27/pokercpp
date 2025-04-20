@@ -15,5 +15,9 @@ $(TARGET): $(SRC)
 run: $(TARGET)
 	./$(TARGET)
 
+test:
+	clang++ -std=c++17 -Wall -Wextra tests/test_*.cpp tests/catch_amalgamated.cpp model/*.cpp -o tests/test_runner
+	./tests/test_runner
+
 clean:
 	rm -f $(TARGET)

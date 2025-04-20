@@ -1,0 +1,17 @@
+mutators:
+  - cxx_add_to_sub
+  - cxx_remove_void_call
+  - cxx_gt_to_lt
+  - cxx_ge_to_gt
+  - negate_conditionals
+
+diagnostics:
+  debugEnabled: true
+  reporter: Elements
+
+reporters:
+  - Elements
+  - IDE
+  - MutationTestingElementsReporter
+
+timeout: 20
