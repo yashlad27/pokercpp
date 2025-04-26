@@ -1,7 +1,7 @@
 #include "poker_controller.h"
 #include "../model/deck.h"
 #include "../model/player.h"
-#include "../model/hand_types.h" 
+#include "../model/hand_types.h"
 #include "../model/advanced_hand_evaluator.h"
 #include "../view/cli_view.h"
 #include "../animation/spinner.h"
@@ -121,25 +121,28 @@ void PokerController::playRound(Player &human, Player &bot)
     for (int i = 0; i < 3; ++i)
         community.push_back(deck.dealCard());
     CLIView::showCommunityCards(community, "Flop");
-    
+
     // Bot decision making at flop stage
-    if (!handleBetting(human, bot, community, GameStage::Flop)) {
+    if (!handleBetting(human, bot, community, GameStage::Flop))
+    {
         return; // Return if someone folded
     }
 
     // Turn
     community.push_back(deck.dealCard());
     CLIView::showCommunityCards(community, "Turn");
-    
-    if (!handleBetting(human, bot, community, GameStage::Turn)) {
+
+    if (!handleBetting(human, bot, community, GameStage::Turn))
+    {
         return; // Return if someone folded
     }
 
     // River
     community.push_back(deck.dealCard());
     CLIView::showCommunityCards(community, "River");
-    
-    if (!handleBetting(human, bot, community, GameStage::River)) {
+
+    if (!handleBetting(human, bot, community, GameStage::River))
+    {
         return; // Return if someone folded
     }
 
@@ -196,7 +199,7 @@ bool PokerController::handleBetting(Player &human, Player &bot, const std::vecto
     {
         std::cout << "You checked. Bot checks.\n";
     }
-    
+
     return true;
 }
 

@@ -2,9 +2,9 @@
 #include <sstream>
 
 // ANSI color codes
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define BLACK   "\033[30m"
+#define RESET "\033[0m"
+#define RED "\033[31m"
+#define BLACK "\033[30m"
 
 Card::Card(Suit s, Rank r) : suit(s), rank(r) {}
 
