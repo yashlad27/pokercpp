@@ -1,6 +1,11 @@
 #include "card.h"
 #include <sstream>
 
+// ANSI color codes
+#define RESET   "\033[0m"
+#define RED     "\033[31m"
+#define BLACK   "\033[30m"
+
 Card::Card(Suit s, Rank r) : suit(s), rank(r) {}
 
 static std::string suitToSymbol(Suit suit)
@@ -8,13 +13,13 @@ static std::string suitToSymbol(Suit suit)
 	switch (suit)
 	{
 	case Suit::Hearts:
-		return "❤️ ";
+		return "❤️ " RESET;
 	case Suit::Diamonds:
-		return "♦️ ";
+		return "♦️ " RESET;
 	case Suit::Clubs:
-		return "♣️ ";
+		return "♣️ " RESET;
 	case Suit::Spades:
-		return "♠️ ";
+		return "♠️ " RESET;
 	default:
 		return "?";
 	}
