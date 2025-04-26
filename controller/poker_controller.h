@@ -2,6 +2,7 @@
 #define POKER_CONTROLLER_H
 
 #include "../model/player.h"
+#include "../model/bot_player.h"
 
 class PokerController
 {
