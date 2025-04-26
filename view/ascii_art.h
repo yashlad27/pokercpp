@@ -28,6 +28,9 @@ public:
     static void drawPlayers(const std::string &playerName, const std::string &botName,
                             int playerChips, int botChips);
 
+    // Draw empty/face down card
+    static void drawHiddenCard();
+
 private:
     // Top line of card
     static std::string cardTop();
@@ -37,9 +40,6 @@ private:
 
     // Middle of card with rank and suit
     static std::string cardMiddle(const Card &card);
-
-    // Draw empty/face down card
-    static void drawHiddenCard();
 };
 
 #endif // ASCII_ART_H

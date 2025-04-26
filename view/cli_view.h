@@ -16,6 +16,7 @@ public:
     static void showResult(const Player &p1, const Player &p2);
     static void showHandType(const std::string &name, const std::string &handType);
     static void showDivider();
+    static void showTable(const std::vector<Card> &community, const Player &human, const Player &bot, bool showBotCards = false);
 };
 
 #endif // CLI_VIEW_H
