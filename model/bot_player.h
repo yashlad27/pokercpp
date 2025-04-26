@@ -2,7 +2,7 @@
 #define BOT_PLAYER_H
 
 #include "player.h"
-#include "hand_evaluator.h"
+#include "hand_types.h"
 #include "advanced_hand_evaluator.h"
 #include <vector>
 #include <string>

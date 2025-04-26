@@ -2,7 +2,7 @@
 #define ADVANCED_HAND_EVALUATOR_H
 
 #include "card.h"
-#include "hand_evaluator.h"
+#include "hand_types.h"
 #include <vector>
 
 class AdvancedHandEvaluator

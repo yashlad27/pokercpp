@@ -1,6 +1,7 @@
 #include "poker_controller.h"
 #include "../model/deck.h"
 #include "../model/player.h"
+#include "../model/hand_types.h" 
 #include "../model/advanced_hand_evaluator.h"
 #include "../view/cli_view.h"
 #include "../animation/spinner.h"
