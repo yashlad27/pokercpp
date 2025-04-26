@@ -6,7 +6,8 @@ SRC = main.cpp \
       model/card.cpp model/deck.cpp model/player.cpp \
       model/advanced_hand_evaluator.cpp \
       model/bot_player.cpp \
-      animation/spinner.cpp
+      animation/spinner.cpp \
+      montecarlo/MonteCarloSimulator.cpp
 TARGET = poker
 
 $(TARGET): $(SRC)

@@ -116,18 +116,39 @@ void PokerController::playRound(Player &human, Player &bot)
 
     CLIView::waitForEnter();
 
+    // Flop
     std::vector<Card> community;
     for (int i = 0; i < 3; ++i)
         community.push_back(deck.dealCard());
     CLIView::showCommunityCards(community, "Flop");
-    CLIView::waitForEnter();
+    
+    // Bot decision making at flop stage
+    if (!handleBetting(human, bot, community, GameStage::Flop)) {
+        return; // Return if someone folded
+    }
 
+    // Turn
     community.push_back(deck.dealCard());
     CLIView::showCommunityCards(community, "Turn");
-    CLIView::waitForEnter();
+    
+    if (!handleBetting(human, bot, community, GameStage::Turn)) {
+        return; // Return if someone folded
+    }
 
+    // River
     community.push_back(deck.dealCard());
     CLIView::showCommunityCards(community, "River");
+    
+    if (!handleBetting(human, bot, community, GameStage::River)) {
+        return; // Return if someone folded
+    }
+
+    // Showdown
+    showdown(human, bot, community);
+}
+
+bool PokerController::handleBetting(Player &human, Player &bot, const std::vector<Card> &community, GameStage stage)
+{
     CLIView::waitForEnter();
 
     std::cout << "\nWhat do you want to do? (check / bet / fold): ";
@@ -140,7 +161,7 @@ void PokerController::playRound(Player &human, Player &bot)
         std::cout << "Bot's hand: ";
         bot.showHand(true);
         bot.bet(-200);
-        return;
+        return false;
     }
 
     if (action == "bet")
@@ -153,7 +174,7 @@ void PokerController::playRound(Player &human, Player &bot)
         std::this_thread::sleep_for(std::chrono::seconds(2));
 
         auto botHand = getCombinedHand(bot, community);
-        bool botCalls = static_cast<BotPlayer &>(bot).shouldCallBet(botHand);
+        bool botCalls = static_cast<BotPlayer &>(bot).shouldCallBet(botHand, stage);
 
         done = true;
         spinner.join();
@@ -168,15 +189,19 @@ void PokerController::playRound(Player &human, Player &bot)
             std::cout << "Bot folds.\n";
             bot.showHand(true);
             human.bet(-200);
-            return;
+            return false;
         }
     }
     else
     {
         std::cout << "You checked. Bot checks.\n";
-        bot.showHand(true);
     }
+    
+    return true;
+}
 
+void PokerController::showdown(Player &human, Player &bot, const std::vector<Card> &community)
+{
     CLIView::showResult(human, bot);
 
     auto humanFull = getCombinedHand(human, community);
