@@ -32,7 +32,20 @@ void Player::bet(int amount)
 		return;
 	}
 	chips -= amount;
-	std::cout << name << " bets " << amount << " chips.\n";
+	
+	// Color code based on player name
+	const char* color = (name == "You") ? "\033[32m" : "\033[36m"; // Green for You, Cyan for Bot
+	const char* reset = "\033[0m";
+	const char* bold = "\033[1m";
+	const char* yellow = "\033[33m";
+	
+	std::cout << bold << color << name << reset << " bets " << yellow << bold << amount << " chips" << reset << ". 💵\n";
+}
+
+// adds chips to player's stack (for winnings)
+void Player::addChips(int amount)
+{
+	chips += amount;
 }
 
 // Marks player as folded (out of round)

@@ -13,7 +13,7 @@ public:
     static void showCommunityCards(const std::vector<Card> &cards, const std::string &stage);
     static void waitForEnter();
     static void showChipCounts(const Player &p1, const Player &p2);
-    static void showResult(const Player &p1, const Player &p2);
+    static void showResult(const Player &p1, const Player &p2, const std::vector<Card> &community);
     static void showHandType(const std::string &name, const std::string &handType);
     static void showDivider();
     static void showTable(const std::vector<Card> &community, const Player &human, const Player &bot, bool showBotCards = false);

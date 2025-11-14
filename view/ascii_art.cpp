@@ -194,8 +194,10 @@ void ASCIIArt::drawLogo()
 void ASCIIArt::drawPlayers(const std::string &playerName, const std::string &botName,
                            int playerChips, int botChips)
 {
-    std::cout << "  " << botName << ": " << botChips << " chips\n";
-    std::cout << "  " << playerName << ": " << playerChips << " chips\n\n";
+    std::cout << "  \033[1m\033[36m" << botName << "\033[0m: " 
+              << "\033[33m" << botChips << " chips\033[0m 💰\n";
+    std::cout << "  \033[1m\033[32m" << playerName << "\033[0m: " 
+              << "\033[33m" << playerChips << " chips\033[0m 💰\n\n";
 }
 
 std::string ASCIIArt::cardTop()

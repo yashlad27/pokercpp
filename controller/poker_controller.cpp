@@ -13,6 +13,16 @@
 #include <thread>
 #include <chrono>
 
+// ANSI color codes
+#define RESET "\033[0m"
+#define BOLD "\033[1m"
+#define CYAN "\033[36m"
+#define GREEN "\033[32m"
+#define YELLOW "\033[33m"
+#define RED "\033[31m"
+#define BLUE "\033[34m"
+#define MAGENTA "\033[35m"
+
 std::vector<Card> getCombinedHand(const Player &player, const std::vector<Card> &community)
 {
     std::vector<Card> fullHand = player.getHand();
@@ -54,7 +64,7 @@ void PokerController::runGame()
     CLIView::showWelcome();
 
     std::string input;
-    std::cout << "Choose bot difficulty (easy / medium / hard / hardplus): ";
+    std::cout << BOLD << CYAN << "Choose bot difficulty " << RESET << "(" << GREEN << "easy" << RESET << " / " << YELLOW << "medium" << RESET << " / " << RED << "hard" << RESET << " / " << MAGENTA << "hardplus" << RESET << "): ";
     std::cin >> input;
 
     BotDifficulty botDiff = BotDifficulty::Medium;
@@ -77,24 +87,24 @@ void PokerController::runGame()
         playRound(human, bot);
 
         std::string choice;
-        std::cout << "\nDo you want to play another round? (yes/no): ";
+        std::cout << "\n" << BOLD << BLUE << "Do you want to play another round? " << RESET << "(" << GREEN << "yes" << RESET << "/" << RED << "no" << RESET << "): ";
         std::cin >> choice;
 
         if (choice != "yes" && choice != "y")
         {
-            std::cout << "Thanks for playing! 🎉\n";
+            std::cout << BOLD << GREEN << "\nThanks for playing! 🎉" << RESET << "\n";
             break;
         }
     }
 
-    std::cout << "\n🏁 Game Over!\n";
+    std::cout << "\n" << BOLD << YELLOW << "🏁 Game Over!" << RESET << "\n";
     if (human.getChipCount() <= 0)
     {
-        std::cout << "😞 You ran out of chips. Bot wins the game!\n";
+        std::cout << BOLD << RED << "😞 You ran out of chips. Bot wins the game!" << RESET << "\n";
     }
     else if (bot.getChipCount() <= 0)
     {
-        std::cout << "🎉 Bot is broke! You win the game!\n";
+        std::cout << BOLD << GREEN << "🎉 Bot is broke! You win the game!" << RESET << "\n";
     }
 }
 
@@ -109,9 +119,9 @@ void PokerController::playRound(Player &human, Player &bot)
     bot.recieveCard(deck.dealCard());
     bot.recieveCard(deck.dealCard());
 
-    std::cout << "\nYour Hand: ";
+    std::cout << "\n" << BOLD << GREEN << "Your Hand: " << RESET;
     human.showHand(true);
-    std::cout << "Bot's Hand: ";
+    std::cout << BOLD << CYAN << "Bot's Hand: " << RESET;
     bot.showHand(false);
 
     CLIView::waitForEnter();
@@ -154,16 +164,17 @@ bool PokerController::handleBetting(Player &human, Player &bot, const std::vecto
 {
     CLIView::waitForEnter();
 
-    std::cout << "\nWhat do you want to do? (check / bet / fold): ";
+    std::cout << "\n" << BOLD << BLUE << "What do you want to do? " << RESET << "(" << GREEN << "check" << RESET << " / " << YELLOW << "bet" << RESET << " / " << RED << "fold" << RESET << "): ";
     std::string action;
     std::cin >> action;
 
     if (action == "fold")
     {
-        std::cout << "You folded. Bot wins the round.\n";
-        std::cout << "Bot's hand: ";
+        std::cout << RED << "You folded. " << RESET << CYAN << "Bot wins the round." << RESET << "\n";
+        std::cout << CYAN << "Bot's hand: " << RESET;
         bot.showHand(true);
-        bot.bet(-200);
+        bot.addChips(200);
+        std::cout << BOLD << CYAN << "Bot wins 200 chips! 💰" << RESET << "\n";
         return false;
     }
 
@@ -184,20 +195,21 @@ bool PokerController::handleBetting(Player &human, Player &bot, const std::vecto
 
         if (botCalls)
         {
-            std::cout << "Bot calls your bet.\n";
+            std::cout << CYAN << "Bot calls your bet." << RESET << "\n";
             bot.bet(100);
         }
         else
         {
-            std::cout << "Bot folds.\n";
+            std::cout << CYAN << "Bot folds." << RESET << "\n";
             bot.showHand(true);
-            human.bet(-200);
+            human.addChips(200);
+            std::cout << BOLD << GREEN << "You win 200 chips! 💰" << RESET << "\n";
             return false;
         }
     }
     else
     {
-        std::cout << "You checked. Bot checks.\n";
+        std::cout << BLUE << "You checked." << RESET << " " << CYAN << "Bot checks." << RESET << "\n";
     }
 
     return true;
@@ -205,7 +217,7 @@ bool PokerController::handleBetting(Player &human, Player &bot, const std::vecto
 
 void PokerController::showdown(Player &human, Player &bot, const std::vector<Card> &community)
 {
-    CLIView::showResult(human, bot);
+    CLIView::showResult(human, bot, community);
 
     auto humanFull = getCombinedHand(human, community);
     auto botFull = getCombinedHand(bot, community);
@@ -218,21 +230,24 @@ void PokerController::showdown(Player &human, Player &bot, const std::vector<Car
 
     const int pot = 200;
 
-    std::cout << "\nResult: ";
+    std::cout << "\n" << BOLD << YELLOW << "Result: " << RESET;
     if (hv1 > hv2)
     {
-        std::cout << "You win!\n";
-        human.bet(-pot);
+        std::cout << BOLD << GREEN << "You win! 🎉" << RESET << "\n";
+        human.addChips(pot);
+        std::cout << GREEN << "You won " << BOLD << pot << " chips! 💰" << RESET << "\n";
     }
     else if (hv2 > hv1)
     {
-        std::cout << "Bot wins!\n";
-        bot.bet(-pot);
+        std::cout << BOLD << CYAN << "Bot wins! 🤖" << RESET << "\n";
+        bot.addChips(pot);
+        std::cout << CYAN << "Bot won " << BOLD << pot << " chips! 💰" << RESET << "\n";
     }
     else
     {
-        std::cout << "It's a tie!\n";
-        human.bet(-100);
-        bot.bet(-100);
+        std::cout << BOLD << YELLOW << "It's a tie! 🤝" << RESET << "\n";
+        human.addChips(100);
+        bot.addChips(100);
+        std::cout << YELLOW << "Pot split - both players get 100 chips back. 💰" << RESET << "\n";
     }
 }

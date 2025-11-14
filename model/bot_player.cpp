@@ -1,5 +1,6 @@
 #include "bot_player.h"
 #include "advanced_hand_evaluator.h"
+#include "../view/bot_thinking_visualizer.h"
 #include <cstdlib>
 #include <future>
 #include <random>
@@ -18,94 +19,191 @@ BotDifficulty BotPlayer::getDifficulty() const {
 bool BotPlayer::shouldCallBet(const std::vector<Card>& fullHand, GameStage stage) {
     HandValue eval = AdvancedHandEvaluator::evaluate(fullHand);
 
-    // Add logging for better visualization
-    std::cout << "Bot has: " << static_cast<int>(eval.rank) << " (";
-    switch(eval.rank) {
-        case HandRank::HighCard: std::cout << "High Card"; break;
-        case HandRank::OnePair: std::cout << "One Pair"; break;
-        case HandRank::TwoPair: std::cout << "Two Pair"; break;
-        case HandRank::ThreeOfAKind: std::cout << "Three of a Kind"; break;
-        case HandRank::Straight: std::cout << "Straight"; break;
-        case HandRank::Flush: std::cout << "Flush"; break;
-        case HandRank::FullHouse: std::cout << "Full House"; break;
-        case HandRank::FourOfAKind: std::cout << "Four of a Kind"; break;
-        case HandRank::StraightFlush: std::cout << "Straight Flush"; break;
-        case HandRank::RoyalFlush: std::cout << "Royal Flush"; break;
+    // Show bot thinking header
+    std::string diffStr;
+    switch (difficulty) {
+        case BotDifficulty::Easy: diffStr = "EASY"; break;
+        case BotDifficulty::Medium: diffStr = "MEDIUM"; break;
+        case BotDifficulty::Hard: diffStr = "HARD"; break;
+        case BotDifficulty::HardPlus: diffStr = "HARD+"; break;
     }
-    std::cout << ")" << std::endl;
+    BotThinkingVisualizer::showThinkingHeader(getName(), diffStr);
+    
+    // Show hand evaluation
+    BotThinkingVisualizer::showHandEvaluation(eval, fullHand);
+    
+    // Show game stage
+    std::string stageStr;
+    switch (stage) {
+        case GameStage::PreFlop: stageStr = "Pre-Flop"; break;
+        case GameStage::Flop: stageStr = "Flop"; break;
+        case GameStage::Turn: stageStr = "Turn"; break;
+        case GameStage::River: stageStr = "River"; break;
+    }
+    
+    // Calculate hand strength for decision factors
+    double handStrength = 0.0;
+    switch (eval.rank) {
+        case HandRank::RoyalFlush:     handStrength = 1.0; break;
+        case HandRank::StraightFlush:  handStrength = 0.95; break;
+        case HandRank::FourOfAKind:    handStrength = 0.88; break;
+        case HandRank::FullHouse:      handStrength = 0.78; break;
+        case HandRank::Flush:          handStrength = 0.68; break;
+        case HandRank::Straight:       handStrength = 0.58; break;
+        case HandRank::ThreeOfAKind:   handStrength = 0.45; break;
+        case HandRank::TwoPair:        handStrength = 0.35; break;
+        case HandRank::OnePair:        handStrength = 0.22; break;
+        case HandRank::HighCard:       handStrength = 0.08; break;
+    }
+    
+    bool hasDraws = hasDrawingHand(fullHand);
+    BotThinkingVisualizer::showDecisionFactors(stageStr, eval, hasDraws, handStrength);
 
+    bool decision;
     switch (difficulty) {
         case BotDifficulty::Easy:
-            return shouldCallEasy();
+            decision = shouldCallEasy();
+            break;
         case BotDifficulty::Medium:
-            return shouldCallMedium(eval, stage, fullHand);
+            decision = shouldCallMedium(eval, stage, fullHand);
+            break;
         case BotDifficulty::Hard:
-            return shouldCallHard(eval, stage, fullHand);
+            decision = shouldCallHard(eval, stage, fullHand);
+            break;
         case BotDifficulty::HardPlus:
-            return shouldCallHardPlus(fullHand);
+            decision = shouldCallHardPlus(fullHand);
+            break;
+        default:
+            decision = false;
     }
-    return false;
+    
+    return decision;
 }
 
 bool BotPlayer::shouldCallEasy() const {
-    return (rand() % 4 == 0);  // 25% chance
+    bool willCall = (rand() % 4 == 0);  // 25% chance
+    
+    std::string reasoning = "Random decision (25% chance to call)";
+    BotThinkingVisualizer::showFinalDecision(willCall, reasoning);
+    
+    return willCall;
 }
 
 bool BotPlayer::shouldCallMedium(const HandValue& eval, GameStage stage, const std::vector<Card>& fullHand) const {
+    std::string reasoning;
+    bool decision = false;
+    
     // Base decision on hand strength and game stage
     if (eval.rank >= HandRank::ThreeOfAKind) {
-        return true; // Strong hand, always call
+        decision = true;
+        reasoning = "Strong hand (Three of a Kind or better) - Always call";
+        BotThinkingVisualizer::showFinalDecision(decision, reasoning);
+        return decision;
     }
     
     if (eval.rank >= HandRank::OnePair) {
-        return true; // At least a pair, call
+        decision = true;
+        reasoning = "At least one pair - Calling";
+        BotThinkingVisualizer::showFinalDecision(decision, reasoning);
+        return decision;
     }
     
     // Check for drawing hands in earlier stages
-    if (stage != GameStage::River && hasDrawingHand(fullHand)) {
+    bool hasFlush = hasFlushDraw(fullHand);
+    bool hasStraight = hasStraightDraw(fullHand);
+    
+    if (stage != GameStage::River && (hasFlush || hasStraight)) {
+        BotThinkingVisualizer::showDrawingHandAnalysis(hasFlush, hasStraight, fullHand);
+        
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(1, 100);
         
         // 60% chance to call with a drawing hand
-        return dis(gen) <= 60;
+        decision = dis(gen) <= 60;
+        reasoning = decision ? "Drawing hand detected - Calling (60% chance)" : 
+                              "Drawing hand but folding (40% chance)";
+        BotThinkingVisualizer::showFinalDecision(decision, reasoning);
+        return decision;
     }
     
     // Add occasional random bluffing (10% chance)
-    return shouldBluff(eval.rank);
+    int bluffChance = (eval.rank == HandRank::HighCard) ? 10 : 15;
+    decision = shouldBluff(eval.rank);
+    
+    if (decision) {
+        BotThinkingVisualizer::showBluffCalculation(eval.rank, bluffChance, true);
+        reasoning = "Attempting a bluff with weak hand";
+    } else {
+        reasoning = "Weak hand, no draws - Folding";
+    }
+    
+    BotThinkingVisualizer::showFinalDecision(decision, reasoning);
+    return decision;
 }
 
 bool BotPlayer::shouldCallHard(const HandValue& eval, GameStage stage, const std::vector<Card>& fullHand) const {
+    std::string reasoning;
+    bool decision = false;
+    
     // More sophisticated strategy for Hard bot
     if (eval.rank >= HandRank::TwoPair) {
-        return true; // Strong hand, always call
+        decision = true;
+        reasoning = "Strong hand (Two Pair or better) - Always call";
+        BotThinkingVisualizer::showFinalDecision(decision, reasoning);
+        return decision;
     }
     
     if (eval.rank >= HandRank::OnePair) {
         // With one pair, call most of the time (80%)
-        return (rand() % 5 != 0);
+        decision = (rand() % 5 != 0);
+        reasoning = decision ? "One pair - Calling (80% chance)" : 
+                              "One pair but folding (20% chance)";
+        BotThinkingVisualizer::showFinalDecision(decision, reasoning);
+        return decision;
     }
     
     // More aggressive with drawing hands
-    if (stage != GameStage::River && hasDrawingHand(fullHand)) {
-        return true; // Always call with drawing hands
+    bool hasFlush = hasFlushDraw(fullHand);
+    bool hasStraight = hasStraightDraw(fullHand);
+    
+    if (stage != GameStage::River && (hasFlush || hasStraight)) {
+        BotThinkingVisualizer::showDrawingHandAnalysis(hasFlush, hasStraight, fullHand);
+        decision = true;
+        reasoning = "Drawing hand detected - Always calling (aggressive)";
+        BotThinkingVisualizer::showFinalDecision(decision, reasoning);
+        return decision;
     }
     
     // More aggressive bluffing (20% chance with weak hands)
-    return shouldBluff(eval.rank);
+    int bluffChance = (eval.rank == HandRank::HighCard) ? 15 : 20;
+    decision = shouldBluff(eval.rank);
+    
+    if (decision) {
+        BotThinkingVisualizer::showBluffCalculation(eval.rank, bluffChance, true);
+        reasoning = "Aggressive bluff attempt";
+    } else {
+        reasoning = "Weak hand, no draws - Folding";
+    }
+    
+    BotThinkingVisualizer::showFinalDecision(decision, reasoning);
+    return decision;
 }
 
 bool BotPlayer::shouldCallHardPlus(const std::vector<Card>& fullHand) {
-    // For HardPlus, we'll use Monte Carlo simulation on river
-    // For earlier stages, we'll use a more sophisticated strategy
+    // For HardPlus, we'll use Monte Carlo simulation
     
     const int simulations = 200;
     const int threads = 4;
     const int simsPerThread = simulations / threads;
-    std::vector<std::future<int>> futures;
+    std::vector<std::future<std::pair<int, int>>> futures;
 
-    auto simulate = [&]() -> int {
+    // Show Monte Carlo simulation header
+    BotThinkingVisualizer::showMonteCarloHeader(simulations);
+
+    auto simulate = [&]() -> std::pair<int, int> {
         int wins = 0;
+        int ties = 0;
         for (int i = 0; i < simsPerThread; ++i) {
             std::vector<Card> deck;
             for (int r = 2; r <= 14; ++r) {
@@ -126,8 +224,10 @@ bool BotPlayer::shouldCallHardPlus(const std::vector<Card>& fullHand) {
 
             if (botEval > opponentEval)
                 ++wins;
+            else if (botEval == opponentEval)
+                ++ties;
         }
-        return wins;
+        return {wins, ties};
     };
 
     for (int i = 0; i < threads; ++i) {
@@ -135,15 +235,34 @@ bool BotPlayer::shouldCallHardPlus(const std::vector<Card>& fullHand) {
     }
 
     int totalWins = 0;
+    int totalTies = 0;
     for (auto& f : futures) {
-        totalWins += f.get();
+        auto [wins, ties] = f.get();
+        totalWins += wins;
+        totalTies += ties;
     }
-
+    
+    int totalLosses = simulations - totalWins - totalTies;
     double winRate = static_cast<double>(totalWins) / simulations;
-    std::cout << "Bot estimates " << (winRate * 100) << "% chance to win" << std::endl;
+    
+    // Show Monte Carlo results
+    BotThinkingVisualizer::showMonteCarloResult(winRate, totalWins, totalLosses, totalTies, simulations);
     
     // More aggressive threshold for betting
-    return winRate >= 0.4; // Call if 40% or better chance to win
+    bool decision = winRate >= 0.4; // Call if 40% or better chance to win
+    
+    std::string reasoning;
+    if (winRate >= 0.6) {
+        reasoning = "Monte Carlo shows strong position (60%+) - Calling confidently";
+    } else if (winRate >= 0.4) {
+        reasoning = "Monte Carlo shows competitive position (40-60%) - Calling";
+    } else {
+        reasoning = "Monte Carlo shows weak position (<40%) - Folding";
+    }
+    
+    BotThinkingVisualizer::showFinalDecision(decision, reasoning);
+    
+    return decision;
 }
 
 // New helper methods for hand evaluation

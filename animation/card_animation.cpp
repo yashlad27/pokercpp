@@ -7,6 +7,11 @@
 
 // ANSI control codes
 #define CLEAR_LINE "\033[2K\r"
+#define BOLD "\033[1m"
+#define CYAN "\033[36m"
+#define YELLOW "\033[33m"
+#define MAGENTA "\033[35m"
+#define RESET "\033[0m"
 
 void CardAnimation::dealCardAnimation(const Card &card, bool faceUp)
 {
@@ -51,14 +56,30 @@ void CardAnimation::shuffleAnimation()
 
 void CardAnimation::dealCommunityCards(const std::vector<Card> &cards, const std::string &stage)
 {
-    std::cout << "\n=== " << stage << " ===\n";
+    // Choose color based on stage
+    const char* stageColor = CYAN;
+    if (stage == "Flop") stageColor = YELLOW;
+    else if (stage == "Turn") stageColor = MAGENTA;
+    else if (stage == "River") stageColor = CYAN;
+    
+    std::cout << "\n" << BOLD << stageColor << "╔════════════════════════════════════════════════════╗" << RESET << "\n";
+    std::cout << BOLD << stageColor << "║" << RESET << "                  " << BOLD << stageColor << "🎴 " << stage << " 🎴" << RESET;
+    
+    // Add spacing to center the text
+    int padding = 52 - 23 - stage.length();
+    for (int i = 0; i < padding; i++) std::cout << " ";
+    std::cout << BOLD << stageColor << "║" << RESET << "\n";
+    std::cout << BOLD << stageColor << "╚════════════════════════════════════════════════════╝" << RESET << "\n";
 
-    // For each card, animate it being dealt
+    std::cout << "    ";
+    // For each card, show it
     for (const auto &card : cards)
     {
-        dealCardAnimation(card, true);
-        CardAnimation::sleep(300);
+        ASCIIArt::drawCard(card);
+        std::cout << " ";
+        CardAnimation::sleep(200);
     }
+    std::cout << "\n";
 }
 
 void CardAnimation::clearLine()

@@ -28,6 +28,7 @@ public:
 	void clearHand();					// Reset hand (for new round)
 
 	void bet(int amount); // deduct chips
+	void addChips(int amount); // add chips (for winnings)
 	void fold();		  // set folded=true
 	void resetStatus();	  // unfold for next round
 
