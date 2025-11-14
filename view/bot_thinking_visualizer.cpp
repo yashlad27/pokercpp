@@ -303,6 +303,22 @@ void BotThinkingVisualizer::showHandStrengthMeter(const HandValue& eval)
     OUT << " " << std::fixed << std::setprecision(0) << (strength * 100) << "%\n";
 }
 
+void BotThinkingVisualizer::showConfidenceInterval(double lowerBound, double upperBound, double confidence)
+{
+    OUT << BLUE << "│" << RESET << "\n";
+    OUT << BLUE << "│" << RESET << " " << BOLD << YELLOW << "Statistical Confidence:" << RESET << "\n";
+    OUT << BLUE << "│" << RESET << " " << std::fixed << std::setprecision(0) << (confidence * 100) 
+              << "% Confidence Interval: [" 
+              << BOLD << std::fixed << std::setprecision(1) << (lowerBound * 100) << "%" << RESET
+              << " - " 
+              << BOLD << std::fixed << std::setprecision(1) << (upperBound * 100) << "%" << RESET << "]\n";
+    
+    // Show margin of error
+    double margin = (upperBound - lowerBound) / 2.0 * 100;
+    OUT << BLUE << "│" << RESET << " Margin of Error: ±" << std::fixed << std::setprecision(1) 
+              << margin << "%\n";
+}
+
 void BotThinkingVisualizer::showPotOddsAnalysis(double potOdds, double equity)
 {
     OUT << BOLD << BLUE << "┌─ POT ODDS ANALYSIS ───────────────────────────────┐" << RESET << "\n";

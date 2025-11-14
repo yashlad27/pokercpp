@@ -3,6 +3,7 @@
 
 #include "../model/card.h"
 #include <vector>
+#include <utility>  // for std::pair
 
 class MonteCarloSimulator
 {
@@ -15,8 +16,13 @@ public:
     double getWinPercentage() const;
     double getTiePercentage() const;
     double getLosePercentage() const;
+    
+    // Statistical rigor methods
+    double getWinRateStdDev() const;  // Standard deviation of win rate
+    std::pair<double, double> getConfidenceInterval(double confidence = 0.95) const;
+    int getSampleSize() const { return numSimulations; }
 
-    // TODO: Add flush and straight draw probability methods
+    // Drawing hand probability methods
     double getFlushDrawOdds() const;
     double getStraightDrawOdds() const;
 

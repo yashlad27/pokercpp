@@ -30,6 +30,7 @@ public:
     static void showMonteCarloHeader(int simulations);
     static void showMonteCarloProgress(int current, int total, int wins, int ties, int losses);
     static void showMonteCarloResult(double winRate, int totalWins, int totalLosses, int totalTies, int simulations);
+    static void showConfidenceInterval(double lowerBound, double upperBound, double confidence = 0.95);
     
     // Show decision factors with weights
     static void showDecisionFactors(const std::string& stage, const HandValue& eval, 

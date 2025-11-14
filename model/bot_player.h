@@ -6,6 +6,7 @@
 #include "advanced_hand_evaluator.h"
 #include <vector>
 #include <string>
+#include <random>
 
 enum class GameStage 
 {
@@ -27,6 +28,7 @@ class BotPlayer : public Player
 {
 private:
     BotDifficulty difficulty;
+    mutable std::mt19937 rng;  // Mersenne Twister RNG (mutable for const methods)
 
     // basic decision making methods
     bool shouldCallEasy() const;

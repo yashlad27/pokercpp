@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <cmath>  // for sqrt, max, min
 
 MonteCarloSimulator::MonteCarloSimulator(const std::vector<Card> &playerHand,
                                          const std::vector<Card> &communityCards,
@@ -83,6 +84,47 @@ double MonteCarloSimulator::getLosePercentage() const
     if (numSimulations == 0)
         return 0.0;
     return static_cast<double>(loseCount) / numSimulations;
+}
+
+// Calculate standard deviation of win rate using binomial distribution
+// For binary outcomes: σ = sqrt(p(1-p)/n)
+double MonteCarloSimulator::getWinRateStdDev() const
+{
+    if (numSimulations == 0)
+        return 0.0;
+    
+    double p = getWinPercentage();
+    double variance = p * (1.0 - p) / numSimulations;
+    return std::sqrt(variance);
+}
+
+// Calculate confidence interval for win rate
+// Returns pair of (lower_bound, upper_bound)
+// Uses normal approximation for binomial: mean ± z * σ
+std::pair<double, double> MonteCarloSimulator::getConfidenceInterval(double confidence) const
+{
+    if (numSimulations == 0)
+        return {0.0, 0.0};
+    
+    double winRate = getWinPercentage();
+    double stdDev = getWinRateStdDev();
+    
+    // Z-scores for common confidence levels
+    // 95% = 1.96, 99% = 2.576, 90% = 1.645
+    double z = 1.96;  // Default to 95% confidence
+    
+    if (confidence >= 0.99)
+        z = 2.576;
+    else if (confidence >= 0.95)
+        z = 1.96;
+    else if (confidence >= 0.90)
+        z = 1.645;
+    
+    double margin = z * stdDev;
+    double lowerBound = std::max(0.0, winRate - margin);
+    double upperBound = std::min(1.0, winRate + margin);
+    
+    return {lowerBound, upperBound};
 }
 
 double MonteCarloSimulator::getFlushDrawOdds() const

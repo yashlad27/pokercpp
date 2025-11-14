@@ -10,7 +10,10 @@
 #include <iostream>
 
 BotPlayer::BotPlayer(const std::string &name, int chips, BotDifficulty diff)
-    : Player(name, chips), difficulty(diff) {}
+    : Player(name, chips), difficulty(diff), rng(std::random_device{}()) {
+    // RNG is seeded with random_device for non-deterministic behavior
+    // For testing, can be modified to accept a seed parameter
+}
 
 BotDifficulty BotPlayer::getDifficulty() const {
     return difficulty;
@@ -81,7 +84,9 @@ bool BotPlayer::shouldCallBet(const std::vector<Card>& fullHand, GameStage stage
 }
 
 bool BotPlayer::shouldCallEasy() const {
-    bool willCall = (rand() % 4 == 0);  // 25% chance
+    // Use proper C++11 random distribution instead of rand()
+    std::uniform_int_distribution<int> dist(0, 3);
+    bool willCall = (dist(rng) == 0);  // 25% chance (1 in 4)
     
     std::string reasoning = "Random decision (25% chance to call)";
     BotThinkingVisualizer::showFinalDecision(willCall, reasoning);
@@ -156,7 +161,8 @@ bool BotPlayer::shouldCallHard(const HandValue& eval, GameStage stage, const std
     
     if (eval.rank >= HandRank::OnePair) {
         // With one pair, call most of the time (80%)
-        decision = (rand() % 5 != 0);
+        std::uniform_int_distribution<int> dist(0, 4);
+        decision = (dist(rng) != 0);  // 80% chance (4 in 5)
         reasoning = decision ? "One pair - Calling (80% chance)" : 
                               "One pair but folding (20% chance)";
         BotThinkingVisualizer::showFinalDecision(decision, reasoning);
@@ -245,8 +251,16 @@ bool BotPlayer::shouldCallHardPlus(const std::vector<Card>& fullHand) {
     int totalLosses = simulations - totalWins - totalTies;
     double winRate = static_cast<double>(totalWins) / simulations;
     
-    // Show Monte Carlo results
+    // Calculate confidence interval (95% confidence)
+    // Using binomial distribution: σ = sqrt(p(1-p)/n)
+    double stdDev = std::sqrt(winRate * (1.0 - winRate) / simulations);
+    double margin = 1.96 * stdDev;  // 95% confidence = 1.96 z-score
+    double lowerBound = std::max(0.0, winRate - margin);
+    double upperBound = std::min(1.0, winRate + margin);
+    
+    // Show Monte Carlo results with confidence interval
     BotThinkingVisualizer::showMonteCarloResult(winRate, totalWins, totalLosses, totalTies, simulations);
+    BotThinkingVisualizer::showConfidenceInterval(lowerBound, upperBound, 0.95);
     
     // More aggressive threshold for betting
     bool decision = winRate >= 0.4; // Call if 40% or better chance to win
