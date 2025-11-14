@@ -46,6 +46,15 @@
         "unordered_map": "cpp",
         "variant": "cpp",
         "vector": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "__tree": "cpp",
+        "charconv": "cpp",
+        "complex": "cpp",
+        "memory": "cpp",
+        "forward_list": "cpp",
+        "future": "cpp",
+        "iomanip": "cpp",
+        "map": "cpp",
+        "sstream": "cpp"
     }
 }

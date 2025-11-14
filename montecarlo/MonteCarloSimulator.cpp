@@ -198,7 +198,7 @@ double MonteCarloSimulator::getStraightDrawOdds() const
         if (std::find(neededCards.begin(), neededCards.end(), static_cast<int>(c.rank)) != neededCards.end())
         {
             totalOuts--;
-        }
+    }
     }
     for (const Card &c : communityCards)
     {
