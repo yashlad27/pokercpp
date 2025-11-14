@@ -1,6 +1,8 @@
 #include "bot_player.h"
 #include "advanced_hand_evaluator.h"
+#include "poker_math.h"
 #include "../view/bot_thinking_visualizer.h"
+#include "../utils/performance_monitor.h"
 #include <cstdlib>
 #include <future>
 #include <random>
@@ -199,6 +201,9 @@ bool BotPlayer::shouldCallHard(const HandValue& eval, GameStage stage, const std
 bool BotPlayer::shouldCallHardPlus(const std::vector<Card>& fullHand) {
     // For HardPlus, we'll use Monte Carlo simulation
     
+    // Start performance monitoring
+    PerformanceMonitor::start("MonteCarlo_Simulation");
+    
     const int simulations = 200;
     const int threads = 4;
     const int simsPerThread = simulations / threads;
@@ -262,19 +267,44 @@ bool BotPlayer::shouldCallHardPlus(const std::vector<Card>& fullHand) {
     BotThinkingVisualizer::showMonteCarloResult(winRate, totalWins, totalLosses, totalTies, simulations);
     BotThinkingVisualizer::showConfidenceInterval(lowerBound, upperBound, 0.95);
     
-    // More aggressive threshold for betting
-    bool decision = winRate >= 0.4; // Call if 40% or better chance to win
+    // Calculate pot odds and expected value
+    const int POT_SIZE = 200;  // Current pot
+    const int CALL_AMOUNT = 100;  // Amount to call
+    
+    double potOddsRatio = PokerMath::calculatePotOdds(POT_SIZE, CALL_AMOUNT);
+    double ev = PokerMath::calculateEV(winRate, POT_SIZE, CALL_AMOUNT);
+    
+    // Calculate Kelly Criterion for optimal bet sizing
+    double kelly = PokerMath::kellyFraction(winRate, potOddsRatio);
+    
+    // Show advanced mathematics
+    BotThinkingVisualizer::showExpectedValue(ev, POT_SIZE, CALL_AMOUNT);
+    BotThinkingVisualizer::showKellyCriterion(winRate, potOddsRatio, kelly);
+    
+    // Make decision based on EV and Kelly
+    // EV > 0 means profitable call
+    // Kelly > 0 means positive edge
+    bool decision = (ev > 0) && (winRate >= 0.4);
     
     std::string reasoning;
-    if (winRate >= 0.6) {
-        reasoning = "Monte Carlo shows strong position (60%+) - Calling confidently";
+    if (ev > 20 && kelly > 0.2) {
+        reasoning = "Strong EV (" + std::to_string(static_cast<int>(ev)) + " chips) + " +
+                   "Kelly suggests " + std::to_string(static_cast<int>(kelly * 100)) + "% - " +
+                   "CALLING confidently";
+    } else if (ev > 0 && kelly > 0) {
+        reasoning = "Positive EV (" + std::to_string(static_cast<int>(ev)) + " chips) - " +
+                   "Profitable call";
     } else if (winRate >= 0.4) {
-        reasoning = "Monte Carlo shows competitive position (40-60%) - Calling";
+        reasoning = "Win rate above threshold (40%) - Marginal call";
     } else {
-        reasoning = "Monte Carlo shows weak position (<40%) - Folding";
+        reasoning = "Negative EV (" + std::to_string(static_cast<int>(ev)) + " chips) - " +
+                   "FOLDING";
     }
     
     BotThinkingVisualizer::showFinalDecision(decision, reasoning);
+    
+    // Stop performance monitoring
+    PerformanceMonitor::stop("MonteCarlo_Simulation");
     
     return decision;
 }

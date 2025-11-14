@@ -319,6 +319,56 @@ void BotThinkingVisualizer::showConfidenceInterval(double lowerBound, double upp
               << margin << "%\n";
 }
 
+void BotThinkingVisualizer::showKellyCriterion(double winProb, double potOdds, double kellyFraction)
+{
+    OUT << BLUE << "│" << RESET << "\n";
+    OUT << BLUE << "│" << RESET << " " << BOLD << MAGENTA << "Kelly Criterion Analysis:" << RESET << "\n";
+    OUT << BLUE << "│" << RESET << " Win Probability: " << std::fixed << std::setprecision(1) 
+              << (winProb * 100) << "%\n";
+    OUT << BLUE << "│" << RESET << " Pot Odds Ratio: " << std::fixed << std::setprecision(2) 
+              << potOdds << ":1\n";
+    OUT << BLUE << "│" << RESET << " Optimal Kelly: " << BOLD << std::fixed << std::setprecision(1) 
+              << (kellyFraction * 100) << "%" << RESET << " of bankroll\n";
+    
+    if (kellyFraction > 0.25) {
+        OUT << BLUE << "│" << RESET << " Recommendation: " << BOLD << GREEN 
+                  << "🔥 STRONG BET" << RESET << "\n";
+    } else if (kellyFraction > 0.1) {
+        OUT << BLUE << "│" << RESET << " Recommendation: " << BOLD << YELLOW 
+                  << "⚠ MODERATE BET" << RESET << "\n";
+    } else if (kellyFraction > 0) {
+        OUT << BLUE << "│" << RESET << " Recommendation: " << BOLD << CYAN 
+                  << "➤ SMALL BET" << RESET << "\n";
+    } else {
+        OUT << BLUE << "│" << RESET << " Recommendation: " << BOLD << RED 
+                  << "✗ DON'T BET" << RESET << "\n";
+    }
+}
+
+void BotThinkingVisualizer::showExpectedValue(double ev, int potSize, int callAmount)
+{
+    OUT << BLUE << "│" << RESET << "\n";
+    OUT << BLUE << "│" << RESET << " " << BOLD << YELLOW << "Expected Value (EV):" << RESET << "\n";
+    OUT << BLUE << "│" << RESET << " Pot: " << potSize << " chips, Call: " << callAmount << " chips\n";
+    OUT << BLUE << "│" << RESET << " EV = " << (ev >= 0 ? BOLD GREEN : BOLD RED) 
+              << std::showpos << std::fixed << std::setprecision(2) << ev << " chips" 
+              << RESET << std::noshowpos << "\n";
+    
+    if (ev > 10) {
+        OUT << BLUE << "│" << RESET << " Assessment: " << BOLD << GREEN 
+                  << "💰 HIGHLY PROFITABLE" << RESET << "\n";
+    } else if (ev > 0) {
+        OUT << BLUE << "│" << RESET << " Assessment: " << BOLD << GREEN 
+                  << "✓ Profitable" << RESET << "\n";
+    } else if (ev > -10) {
+        OUT << BLUE << "│" << RESET << " Assessment: " << BOLD << YELLOW 
+                  << "⚠ Marginal/Break-even" << RESET << "\n";
+    } else {
+        OUT << BLUE << "│" << RESET << " Assessment: " << BOLD << RED 
+                  << "✗ Unprofitable" << RESET << "\n";
+    }
+}
+
 void BotThinkingVisualizer::showPotOddsAnalysis(double potOdds, double equity)
 {
     OUT << BOLD << BLUE << "┌─ POT ODDS ANALYSIS ───────────────────────────────┐" << RESET << "\n";

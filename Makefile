@@ -11,7 +11,9 @@ SRC = main.cpp \
       model/bot_player.cpp \
       animation/spinner.cpp \
       animation/card_animation.cpp \
-      montecarlo/MonteCarloSimulator.cpp
+      montecarlo/MonteCarloSimulator.cpp \
+      utils/performance_monitor.cpp \
+      utils/game_logger.cpp
 
 # Core model/library files (no main.cpp)
 LIB_SRC = model/card.cpp model/deck.cpp model/player.cpp \

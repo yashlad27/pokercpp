@@ -1,16 +1,31 @@
 #include "controller/poker_controller.h"
 #include "view/bot_thinking_config.h"
+#include "utils/performance_monitor.h"
+#include "utils/game_logger.h"
+#include <iostream>
 
 int main()
 {
-    // Initialize bot thinking visualization (separate terminal mode)
+    // Initialize systems
     BotThinkingConfig::initialize(true);
+    GameLogger::initialize();
     
-    PokerController game;
-    game.runGame();
+    std::cout << "\n\033[1m\033[33m📊 Performance monitoring enabled\033[0m\n";
+    std::cout << "\033[1m\033[33m📝 Game logging to: " << GameLogger::getLogFilePath() << "\033[0m\n\n";
     
-    // Cleanup bot thinking resources
+    // Run game
+    PokerController controller;
+    controller.runGame();
+    
+    // Cleanup and show performance report
     BotThinkingConfig::cleanup();
+    GameLogger::cleanup();
+    
+    std::cout << "\n";
+    PerformanceMonitor::printReport();
+    
+    std::cout << "\n\033[1m\033[32m✅ Game log saved to: " << GameLogger::getLogFilePath() << "\033[0m\n";
+    std::cout << "\033[1m\033[32m✅ Analyze with: cat " << GameLogger::getLogFilePath() << "\033[0m\n\n";
     
     return 0;
 }

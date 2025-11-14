@@ -42,8 +42,14 @@ public:
     // Show hand strength meter
     static void showHandStrengthMeter(const HandValue& eval);
     
-    // Show pot odds calculation (if applicable)
+    // Show pot odds calculation and profitability
     static void showPotOddsAnalysis(double potOdds, double equity);
+    
+    // Show Kelly Criterion recommendation
+    static void showKellyCriterion(double winProb, double potOdds, double kellyFraction);
+    
+    // Show Expected Value calculation
+    static void showExpectedValue(double ev, int potSize, int callAmount);
     
 private:
     // Helper functions for ASCII art
